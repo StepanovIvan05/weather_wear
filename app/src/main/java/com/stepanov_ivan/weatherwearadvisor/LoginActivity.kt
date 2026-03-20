@@ -3,6 +3,7 @@ package com.stepanov_ivan.weatherwearadvisor
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
@@ -20,6 +21,12 @@ class LoginActivity : AppCompatActivity() {
                 view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
                 insets
             }
+        }
+
+        val signUpLink = findViewById<TextView>(R.id.signUpLink)
+        signUpLink.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
         }
 
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)

@@ -12,6 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.WeatherWearAdvisor">
         <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+        <activity
             android:name=".LocationSelectorActivity"
             android:exported="false" />
         <activity
