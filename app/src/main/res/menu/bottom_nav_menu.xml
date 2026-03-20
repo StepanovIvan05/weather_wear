@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@android:drawable/ic_menu_today"
+        android:title="Главная" />
+    <item
+        android:id="@+id/navigation_recommendations"
+        android:icon="@android:drawable/ic_menu_compass"
+        android:title="Рекомендации" />
+    <item
+        android:id="@+id/navigation_wardrobe"
+        android:icon="@android:drawable/ic_menu_view"
+        android:title="Гардероб" />
+    <item
+        android:id="@+id/navigation_location"
+        android:icon="@android:drawable/ic_menu_mylocation"
+        android:title="Локация" />
+    <item
+        android:id="@+id/navigation_profile"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="Профиль" />
+</menu>
