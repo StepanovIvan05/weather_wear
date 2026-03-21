@@ -5,6 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.stepanov_ivan.weatherwearadvisor.model.City
 
 class CityAdapter(private val items: List<City>) :
     RecyclerView.Adapter<CityAdapter.ViewHolder>() {

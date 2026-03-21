@@ -2,38 +2,49 @@ package com.stepanov_ivan.weatherwearadvisor
 
 import android.content.Intent
 import android.os.Bundle
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.stepanov_ivan.weatherwearadvisor.databinding.ActivityWardrobeBinding
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.WardrobeViewModel
 
 class WardrobeActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityWardrobeBinding
+    private val viewModel: WardrobeViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_wardrobe)
+        enableEdgeToEdge()
+        binding = ActivityWardrobeBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val categoriesRecycler = findViewById<RecyclerView>(R.id.categoriesRecycler)
-        val itemsRecycler = findViewById<RecyclerView>(R.id.itemsRecycler)
+        ViewCompat.setOnApplyWindowInsetsListener(binding.main) { v, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            insets
+        }
 
-        categoriesRecycler.layoutManager =
+        setupRecyclers()
+        setupNavigation()
+        observeViewModel()
+    }
+
+    private fun setupRecyclers() {
+        binding.categoriesRecycler.layoutManager =
             LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
 
-        itemsRecycler.layoutManager = GridLayoutManager(this, 2)
+        binding.itemsRecycler.layoutManager = GridLayoutManager(this, 2)
+    }
 
-        val items = listOf(
-            ClothingItem("Джинсовая куртка", "Levi's", R.drawable.outfit_placeholder),
-            ClothingItem("Белые кеды", "Converse", R.drawable.outfit_placeholder),
-            ClothingItem("Худи", "Nike", R.drawable.outfit_placeholder)
-        )
+    private fun setupNavigation() {
+        binding.bottomNavigation.selectedItemId = R.id.navigation_wardrobe
 
-        itemsRecycler.adapter = ClothingAdapter(items)
-
-        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigation.selectedItemId = R.id.navigation_wardrobe
-
-        bottomNavigation.setOnItemSelectedListener { item ->
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
                     startActivity(Intent(this, HomeActivity::class.java))
@@ -54,6 +65,12 @@ class WardrobeActivity : AppCompatActivity() {
                 }
                 else -> false
             }
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.items.observe(this) { items ->
+            binding.itemsRecycler.adapter = ClothingAdapter(items)
         }
     }
 }

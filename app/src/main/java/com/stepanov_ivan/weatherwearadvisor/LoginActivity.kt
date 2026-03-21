@@ -3,36 +3,41 @@ package com.stepanov_ivan.weatherwearadvisor
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.stepanov_ivan.weatherwearadvisor.databinding.ActivityLoginBinding
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.LoginViewModel
 
 class LoginActivity : AppCompatActivity() {
+
+    private lateinit var binding: ActivityLoginBinding
+    private val viewModel: LoginViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_login)
+        enableEdgeToEdge()
+        binding = ActivityLoginBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        val root = findViewById<View>(R.id.rootLayout)
-        root?.let {
-            ViewCompat.setOnApplyWindowInsetsListener(it) { view, insets ->
-                val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-                view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
-                insets
-            }
+        ViewCompat.setOnApplyWindowInsetsListener(binding.rootLayout) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(systemBars.left, systemBars.top, systemBars.right, 0)
+            insets
         }
 
-        val signUpLink = findViewById<TextView>(R.id.signUpLink)
-        signUpLink.setOnClickListener {
-            val intent = Intent(this, RegisterActivity::class.java)
-            startActivity(intent)
-        }
+        setupNavigation()
+        setupListeners()
+        observeViewModel()
+    }
 
-        val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-        bottomNavigation.selectedItemId = R.id.navigation_profile
+    private fun setupNavigation() {
+        binding.bottomNavigation.selectedItemId = R.id.navigation_profile
 
-        bottomNavigation.setOnItemSelectedListener { item ->
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.navigation_home -> {
                     startActivity(Intent(this, HomeActivity::class.java))
@@ -52,6 +57,29 @@ class LoginActivity : AppCompatActivity() {
                 }
                 R.id.navigation_profile -> true
                 else -> false
+            }
+        }
+    }
+
+    private fun setupListeners() {
+        binding.signUpLink.setOnClickListener {
+            val intent = Intent(this, RegisterActivity::class.java)
+            startActivity(intent)
+        }
+
+        binding.loginBtn.setOnClickListener {
+            // Simplified for demo
+            viewModel.login("user@example.com", "password")
+        }
+    }
+
+    private fun observeViewModel() {
+        viewModel.loginResult.observe(this) { success ->
+            if (success) {
+                startActivity(Intent(this, HomeActivity::class.java))
+                finish()
+            } else {
+                Toast.makeText(this, "Ошибка входа", Toast.LENGTH_SHORT).show()
             }
         }
     }

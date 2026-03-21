@@ -1,4 +1,4 @@
-package com.stepanov_ivan.weatherwearadvisor
+package com.stepanov_ivan.weatherwearadvisor.model
 
 data class Outfit(
     val title: String,
