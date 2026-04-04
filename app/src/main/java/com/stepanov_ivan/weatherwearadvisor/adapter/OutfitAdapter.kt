@@ -1,4 +1,4 @@
-package com.stepanov_ivan.weatherwearadvisor
+package com.stepanov_ivan.weatherwearadvisor.adapter
 
 import android.view.LayoutInflater
 import android.view.View
@@ -6,6 +6,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import com.stepanov_ivan.weatherwearadvisor.R
 import com.stepanov_ivan.weatherwearadvisor.model.Outfit
 
 class OutfitAdapter(private val items: List<Outfit>) :

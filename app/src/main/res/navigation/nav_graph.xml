@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/navigation_login">
+
+    <fragment
+        android:id="@+id/navigation_home"
+        android:name="com.stepanov_ivan.weatherwearadvisor.fragment.HomeFragment"
+        android:label="Home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/navigation_recommendations"
+        android:name="com.stepanov_ivan.weatherwearadvisor.fragment.RecommendationsFragment"
+        android:label="Recommendations"
+        tools:layout="@layout/fragment_recommendations" />
+
+    <fragment
+        android:id="@+id/navigation_wardrobe"
+        android:name="com.stepanov_ivan.weatherwearadvisor.fragment.WardrobeFragment"
+        android:label="Wardrobe"
+        tools:layout="@layout/fragment_wardrobe" />
+
+    <fragment
+        android:id="@+id/navigation_location"
+        android:name="com.stepanov_ivan.weatherwearadvisor.fragment.LocationFragment"
+        android:label="Location"
+        tools:layout="@layout/fragment_location" />
+
+    <fragment
+        android:id="@+id/navigation_login"
+        android:name="com.stepanov_ivan.weatherwearadvisor.fragment.LoginFragment"
+        android:label="Login"
+        tools:layout="@layout/fragment_login" />
+
+    <fragment
+        android:id="@+id/navigation_register"
+        android:name="com.stepanov_ivan.weatherwearadvisor.fragment.RegisterFragment"
+        android:label="Register"
+        tools:layout="@layout/fragment_register" />
+
+</navigation>
