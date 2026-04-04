@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import com.google.firebase.auth.FirebaseAuth
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentHomeBinding
 import com.stepanov_ivan.weatherwearadvisor.viewmodel.HomeViewModel
 import com.stepanov_ivan.weatherwearadvisor.R
@@ -15,6 +16,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
+    private val auth = FirebaseAuth.getInstance()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -31,8 +33,10 @@ class HomeFragment : Fragment() {
     }
 
     private fun observeViewModel() {
+        val userName = auth.currentUser?.displayName ?: "Алекс"
+        
         viewModel.state.observe(viewLifecycleOwner) { state ->
-            binding.tvUserName.text = "Привет, ${state.userName}!"
+            binding.tvUserName.text = "Привет, $userName!"
             binding.tvCity.text = "📍 ${state.city}"
             binding.tvCondition.text = state.condition
             binding.tvTemp.text = state.temperature

@@ -7,21 +7,24 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.stepanov_ivan.weatherwearadvisor.R
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentLoginBinding
-import com.stepanov_ivan.weatherwearadvisor.viewmodel.LoginViewModel
+import com.stepanov_ivan.weatherwearadvisor.utils.Resource
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.AuthViewModel
+import kotlinx.coroutines.launch
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: LoginViewModel by viewModels()
+    private val viewModel: AuthViewModel by viewModels()
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
@@ -34,23 +37,37 @@ class LoginFragment : Fragment() {
     }
 
     private fun setupListeners() {
-        binding.signUpLink.setOnClickListener {
-            findNavController().navigate(R.id.navigation_register)
+        binding.loginBtn.setOnClickListener {
+            val email = binding.emailInput.text.toString().trim()
+            val password = binding.passwordInput.text.toString().trim()
+            viewModel.login(email, password)
         }
 
-        binding.loginBtn.setOnClickListener {
-            val email = binding.emailInput.text.toString()
-            val password = binding.passwordInput.text.toString()
-            viewModel.login(email, password)
+        binding.signUpLink.setOnClickListener {
+            findNavController().navigate(R.id.navigation_register)
         }
     }
 
     private fun observeViewModel() {
-        viewModel.loginResult.observe(viewLifecycleOwner) { success ->
-            if (success) {
-                findNavController().navigate(R.id.navigation_home)
-            } else {
-                Toast.makeText(requireContext(), "Ошибка входа", Toast.LENGTH_SHORT).show()
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.authState.collect { resource ->
+                    when (resource) {
+                        is Resource.Loading -> {
+                            binding.loginBtn.isEnabled = false
+                        }
+                        is Resource.Success -> {
+                            // Используем action_login_to_home для очистки стека
+                            findNavController().navigate(R.id.action_login_to_home)
+                        }
+                        is Resource.Error -> {
+                            binding.loginBtn.isEnabled = true
+                            Toast.makeText(requireContext(), resource.message, Toast.LENGTH_SHORT).show()
+                            viewModel.resetState()
+                        }
+                        null -> {}
+                    }
+                }
             }
         }
     }
