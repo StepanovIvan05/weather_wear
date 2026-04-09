@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "647027846411",
+    "project_id": "weatherwearadvisor",
+    "storage_bucket": "weatherwearadvisor.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:647027846411:android:8fe6ec797599589094060e",
+        "android_client_info": {
+          "package_name": "com.stepanov_ivan.weatherwearadvisor"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "647027846411-derc468uf64bhhsll0m1osj715ufb29b.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAC9MkU5SO4VtQXOE5GQ9YEHzKBvXlnikQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "647027846411-derc468uf64bhhsll0m1osj715ufb29b.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
