@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.google.firebase.auth.FirebaseAuth
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentHomeBinding
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.viewmodel.HomeViewModel
 import com.stepanov_ivan.weatherwearadvisor.R
 
@@ -17,6 +18,7 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
     private val viewModel: HomeViewModel by viewModels()
     private val auth = FirebaseAuth.getInstance()
+    private val authRepository = AppContainer.authRepository
 
     override fun onCreateView(
         inflater: LayoutInflater,

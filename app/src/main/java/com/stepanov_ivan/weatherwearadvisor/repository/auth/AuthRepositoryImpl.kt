@@ -1,17 +1,15 @@
 package com.stepanov_ivan.weatherwearadvisor.repository.auth
 
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.userProfileChangeRequest
+import com.stepanov_ivan.weatherwearadvisor.data.AuthManager
 import com.stepanov_ivan.weatherwearadvisor.utils.Resource
-import kotlinx.coroutines.tasks.await
 
-class AuthRepositoryImpl : AuthRepository {
-
-    private val auth = FirebaseAuth.getInstance()
+class AuthRepositoryImpl(
+    private val authManager: AuthManager
+) : AuthRepository {
 
     override suspend fun login(email: String, password: String): Resource<Boolean> {
         return try {
-            auth.signInWithEmailAndPassword(email, password).await()
+            authManager.signIn(email, password)
             Resource.Success(true)
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Ошибка входа")
@@ -20,11 +18,7 @@ class AuthRepositoryImpl : AuthRepository {
 
     override suspend fun register(name: String, email: String, password: String): Resource<Boolean> {
         return try {
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
-            val profileUpdates = userProfileChangeRequest {
-                displayName = name
-            }
-            result.user?.updateProfile(profileUpdates)?.await()
+            authManager.register(name, email, password)
             Resource.Success(true)
         } catch (e: Exception) {
             Resource.Error(e.localizedMessage ?: "Ошибка регистрации")
@@ -32,10 +26,22 @@ class AuthRepositoryImpl : AuthRepository {
     }
 
     override fun isUserLoggedIn(): Boolean {
-        return auth.currentUser != null
+        return authManager.isUserLoggedIn()
+    }
+
+    override fun getCurrentUserId(): String? {
+        return authManager.currentUser?.uid
+    }
+
+    override fun getCurrentUserName(): String? {
+        return authManager.currentUser?.displayName
+    }
+
+    override fun getCurrentUserEmail(): String? {
+        return authManager.currentUser?.email
     }
 
     override fun logout() {
-        auth.signOut()
+        authManager.signOut()
     }
 }

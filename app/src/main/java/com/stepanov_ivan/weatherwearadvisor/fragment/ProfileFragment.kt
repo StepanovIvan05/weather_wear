@@ -6,17 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.stepanov_ivan.weatherwearadvisor.R
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentProfileBinding
-import com.stepanov_ivan.weatherwearadvisor.repository.auth.AuthRepositoryImpl
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 
 class ProfileFragment : Fragment() {
 
     private var _binding: FragmentProfileBinding? = null
     private val binding get() = _binding!!
-    private val auth = FirebaseAuth.getInstance()
-    private val repository = AuthRepositoryImpl()
+    private val authRepository = AppContainer.authRepository
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -28,12 +26,15 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        val user = auth.currentUser
-        binding.tvName.text = user?.displayName ?: "Пользователь"
-        binding.tvEmail.text = user?.email ?: "Email не указан"
+        val user = object {
+            val displayName = authRepository.getCurrentUserName()
+            val email = authRepository.getCurrentUserEmail()
+        }
+        binding.tvName.text = user.displayName ?: "Пользователь"
+        binding.tvEmail.text = user.email ?: "Email не указан"
 
         binding.logoutBtn.setOnClickListener {
-            repository.logout()
+            authRepository.logout()
             findNavController().navigate(R.id.navigation_login)
         }
     }

@@ -5,15 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.stepanov_ivan.weatherwearadvisor.adapter.CityAdapter
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentLocationBinding
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.model.City
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.LocationViewModel
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.factory.LocationViewModelFactory
 
 class LocationFragment : Fragment() {
 
     private var _binding: FragmentLocationBinding? = null
     private val binding get() = _binding!!
+    private val viewModel: LocationViewModel by viewModels {
+        LocationViewModelFactory(AppContainer.locationRepository)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -34,7 +41,7 @@ class LocationFragment : Fragment() {
         binding.citiesRecycler.layoutManager = LinearLayoutManager(requireContext())
         
         // В будущем эти данные должны приходить из ViewModel
-        val cities = listOf(
+        val cities = viewModel.cities.value ?: listOf(
             City("Москва", "Россия", true),
             City("Санкт-Петербург", "Россия", false),
             City("Сочи", "Россия", false)

@@ -10,21 +10,19 @@ import android.widget.Toast
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
-import com.google.firebase.auth.FirebaseAuth
 import com.stepanov_ivan.weatherwearadvisor.R
 import com.stepanov_ivan.weatherwearadvisor.adapter.ClothingAdapter
-import com.stepanov_ivan.weatherwearadvisor.data.AppDatabase
 import com.stepanov_ivan.weatherwearadvisor.databinding.DialogAddClothingBinding
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentWardrobeBinding
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.model.ClothingItem
-import com.stepanov_ivan.weatherwearadvisor.repository.wardrobe.WardrobeRepository
 import com.stepanov_ivan.weatherwearadvisor.utils.Resource
 import com.stepanov_ivan.weatherwearadvisor.viewmodel.WardrobeViewModel
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.factory.WardrobeViewModelFactory
 import kotlinx.coroutines.launch
 
 class WardrobeFragment : Fragment() {
@@ -32,8 +30,10 @@ class WardrobeFragment : Fragment() {
     private var _binding: FragmentWardrobeBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var viewModel: WardrobeViewModel
-    private val auth = FirebaseAuth.getInstance()
+    private val authRepository = AppContainer.authRepository
+    private val viewModel: WardrobeViewModel by viewModels {
+        WardrobeViewModelFactory(AppContainer.provideWardrobeRepository(requireContext()))
+    }
     
     private var selectedImageUri: Uri? = null
     private var currentDialogBinding: DialogAddClothingBinding? = null
@@ -56,24 +56,10 @@ class WardrobeFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        setupViewModel()
         setupRecycler()
         setupListeners()
         observeViewModel()
-    }
-
-    private fun setupViewModel() {
-        val dao = AppDatabase.getDatabase(requireContext()).wardrobeDao()
-        val repository = WardrobeRepository(dao)
-        val factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>): T {
-                return WardrobeViewModel(repository) as T
-            }
-        }
-        viewModel = ViewModelProvider(this, factory)[WardrobeViewModel::class.java]
-        
-        auth.currentUser?.uid?.let { viewModel.getItems(it) }
+        authRepository.getCurrentUserId()?.let(viewModel::getItems)
     }
 
     private fun setupRecycler() {
@@ -117,7 +103,7 @@ class WardrobeFragment : Fragment() {
             val minTemp = dialogBinding.etMinTemp.text.toString().toIntOrNull() ?: 0
             val maxTemp = dialogBinding.etMaxTemp.text.toString().toIntOrNull() ?: 0
             val photoUri = selectedImageUri?.toString() ?: ""
-            val userId = auth.currentUser?.uid ?: ""
+            val userId = authRepository.getCurrentUserId().orEmpty()
 
             if (name.isBlank()) {
                 Toast.makeText(requireContext(), "Введите название", Toast.LENGTH_SHORT).show()

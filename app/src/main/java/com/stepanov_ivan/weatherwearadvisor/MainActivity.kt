@@ -5,14 +5,14 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
-import com.google.firebase.auth.FirebaseAuth
 import com.stepanov_ivan.weatherwearadvisor.databinding.ActivityMainBinding
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.R
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private val auth = FirebaseAuth.getInstance()
+    private val authRepository = AppContainer.authRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +26,7 @@ class MainActivity : AppCompatActivity() {
         binding.bottomNavigation.setupWithNavController(navController)
 
         // Проверка текущего пользователя: если его нет, переходим на логин
-        if (auth.currentUser == null) {
+        if (!authRepository.isUserLoggedIn()) {
             navController.navigate(R.id.navigation_login)
         }
 

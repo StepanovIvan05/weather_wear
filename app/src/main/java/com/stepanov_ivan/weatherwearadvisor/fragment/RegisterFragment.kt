@@ -13,15 +13,19 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.stepanov_ivan.weatherwearadvisor.R
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentRegisterBinding
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.utils.Resource
 import com.stepanov_ivan.weatherwearadvisor.viewmodel.AuthViewModel
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.factory.AuthViewModelFactory
 import kotlinx.coroutines.launch
 
 class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
-    private val viewModel: AuthViewModel by viewModels()
+    private val viewModel: AuthViewModel by viewModels {
+        AuthViewModelFactory(AppContainer.authRepository)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

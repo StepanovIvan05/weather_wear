@@ -3,7 +3,6 @@ package com.stepanov_ivan.weatherwearadvisor.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stepanov_ivan.weatherwearadvisor.repository.auth.AuthRepository
-import com.stepanov_ivan.weatherwearadvisor.repository.auth.AuthRepositoryImpl
 import com.stepanov_ivan.weatherwearadvisor.utils.Resource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -11,7 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class AuthViewModel(
-    private val repository: AuthRepository = AuthRepositoryImpl()
+    private val repository: AuthRepository
 ) : ViewModel() {
 
     private val _authState = MutableStateFlow<Resource<Boolean>?>(null)
