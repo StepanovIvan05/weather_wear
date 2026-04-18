@@ -1,8 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.google.services)
-    alias(libs.plugins.kotlin.kapt)
+    id("com.android.application")
+    id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.kapt")
 }
 
 android {
@@ -17,6 +17,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        
+        // OpenWeatherMap API Key
+        buildConfigField("String", "OPENWEATHERMAP_API_KEY", "\"a8d462028660397f4abda9931b7b98e1\"")
     }
 
     buildTypes {
@@ -37,10 +40,15 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
 
 dependencies {
+    // Module dependencies
+    implementation(project(":core:common"))
+    implementation(project(":features:weather"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
@@ -72,4 +80,8 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
+
+    // Security - Encrypted SharedPreferences (now in core:common)
+    // но оставляем зависимость для backward compatibility
+    implementation("androidx.security:security-crypto:1.1.0-alpha06")
 }

@@ -3,6 +3,16 @@ package com.stepanov_ivan.weatherwearadvisor.viewmodel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
+import com.stepanov_ivan.weatherwearadvisor.weather.model.WeatherData
+import kotlinx.coroutines.launch
+
+sealed class WeatherState {
+    object Loading : WeatherState()
+    data class Success(val weatherData: WeatherData) : WeatherState()
+    data class Error(val message: String) : WeatherState()
+}
 
 data class HomeState(
     val userName: String = "",
@@ -21,11 +31,17 @@ class HomeViewModel : ViewModel() {
     private val _state = MutableLiveData<HomeState>()
     val state: LiveData<HomeState> = _state
 
+    private val _weatherState = MutableLiveData<WeatherState>()
+    val weatherState: LiveData<WeatherState> = _weatherState
+
     private val _navigateTo = MutableLiveData<Int?>()
     val navigateTo: LiveData<Int?> = _navigateTo
 
+    private val weatherRepository = AppContainer.provideWeatherRepository()
+
     init {
         loadData()
+        loadWeather()
     }
 
     private fun loadData() {
@@ -41,6 +57,29 @@ class HomeViewModel : ViewModel() {
             wardrobeCount = "42 вещи",
             outfitsCount = "8 образов"
         )
+    }
+
+    private fun loadWeather() {
+        viewModelScope.launch {
+            _weatherState.value = WeatherState.Loading
+
+            try {
+                // Получаем погоду для Москвы (можно заменить на текущий город пользователя)
+                val result = weatherRepository.getWeatherByCity("Moscow")
+
+                result.onSuccess { weatherData ->
+                    _weatherState.value = WeatherState.Success(weatherData)
+                }.onFailure { exception ->
+                    _weatherState.value = WeatherState.Error("Не удалось загрузить погоду: ${exception.message}")
+                }
+            } catch (e: Exception) {
+                _weatherState.value = WeatherState.Error("Ошибка сети: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun retryLoadWeather() {
+        loadWeather()
     }
 
     fun onNavigationClick(itemId: Int) {

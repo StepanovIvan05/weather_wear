@@ -10,6 +10,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.stepanov_ivan.weatherwearadvisor.databinding.FragmentHomeBinding
 import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.viewmodel.HomeViewModel
+import com.stepanov_ivan.weatherwearadvisor.viewmodel.WeatherState
 import com.stepanov_ivan.weatherwearadvisor.R
 
 class HomeFragment : Fragment() {
@@ -47,6 +48,35 @@ class HomeFragment : Fragment() {
             binding.tvHumidity.text = state.humidity
             binding.tvWardrobeCount.text = state.wardrobeCount
             binding.tvOutfitsCount.text = state.outfitsCount
+        }
+
+        // Наблюдаем за состоянием погоды
+        viewModel.weatherState.observe(viewLifecycleOwner) { weatherState ->
+            when (weatherState) {
+                is WeatherState.Loading -> {
+                    binding.tvCondition.text = "⏳ Загрузка..."
+                    binding.tvTemp.text = "--°"
+                    binding.tvFeelsLike.text = "Ощущается как --°"
+                    binding.tvWindSpeed.text = "💨 -- км/ч"
+                    binding.tvHumidity.text = "💧 --%"
+                }
+                is WeatherState.Success -> {
+                    val weather = weatherState.weatherData
+                    binding.tvCity.text = "📍 ${weather.city}"
+                    binding.tvCondition.text = weather.description.replaceFirstChar { it.uppercase() }
+                    binding.tvTemp.text = "${weather.temperature.toInt()}°"
+                    binding.tvFeelsLike.text = "Ощущается как ${weather.feelsLike.toInt()}°"
+                    binding.tvWindSpeed.text = "💨 ${weather.windSpeed.toInt()} км/ч"
+                    binding.tvHumidity.text = "💧 ${weather.humidity}%"
+                }
+                is WeatherState.Error -> {
+                    binding.tvCondition.text = "❌ Ошибка"
+                    binding.tvTemp.text = "--°"
+                    binding.tvFeelsLike.text = weatherState.message
+                    binding.tvWindSpeed.text = "💨 -- км/ч"
+                    binding.tvHumidity.text = "💧 --%"
+                }
+            }
         }
     }
 
