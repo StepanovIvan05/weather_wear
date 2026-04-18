@@ -55,6 +55,17 @@
                     android:padding="8dp"
                     android:background="@drawable/social_bg"
                     android:textSize="14sp"/>
+
+                <Button
+                    android:id="@+id/btnLocationWeather"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:text="📍 GPS"
+                    android:textSize="12sp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="#FFFFFF"
+                    android:padding="6dp"/>
             </LinearLayout>
 
             <!-- WEATHER -->

@@ -8,7 +8,7 @@ import com.stepanov_ivan.weatherwearadvisor.data.AuthManager
 import com.stepanov_ivan.weatherwearadvisor.repository.auth.AuthRepository
 import com.stepanov_ivan.weatherwearadvisor.repository.auth.AuthRepositoryImpl
 import com.stepanov_ivan.weatherwearadvisor.repository.location.LocationRepository
-import com.stepanov_ivan.weatherwearadvisor.repository.location.StaticLocationRepository
+import com.stepanov_ivan.weatherwearadvisor.repository.location.LocationRepositoryImpl
 import com.stepanov_ivan.weatherwearadvisor.repository.wardrobe.WardrobeRepository
 import com.stepanov_ivan.weatherwearadvisor.repository.wardrobe.WardrobeRepositoryImpl
 import com.stepanov_ivan.weatherwearadvisor.weather.WeatherModuleProvider
@@ -22,9 +22,11 @@ import com.stepanov_ivan.weatherwearadvisor.weather.repository.WeatherRepository
  * - :app (локально) → Auth, Wardrobe, Location
  */
 object AppContainer {
+    private lateinit var appContext: Context
     private val authManager by lazy { AuthManager() }
 
     fun init(context: Context) {
+        appContext = context.applicationContext
         // Уже инициализировано, но подтверждение для безопасности
         CommonModuleProvider.initialize(context)
     }
@@ -37,7 +39,7 @@ object AppContainer {
     }
 
     val locationRepository: LocationRepository by lazy {
-        StaticLocationRepository()
+        LocationRepositoryImpl(appContext)
     }
 
     fun provideWardrobeRepository(context: Context): WardrobeRepository {

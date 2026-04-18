@@ -81,6 +81,14 @@ dependencies {
     implementation(libs.firebase.auth)
     implementation(libs.firebase.analytics)
 
+    // Google Play Services for Location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    // Geocoding API (OpenWeather)
+    implementation("com.squareup.retrofit2:retrofit:2.9.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.9.0")
+
     // Security - Encrypted SharedPreferences (now in core:common)
     // но оставляем зависимость для backward compatibility
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

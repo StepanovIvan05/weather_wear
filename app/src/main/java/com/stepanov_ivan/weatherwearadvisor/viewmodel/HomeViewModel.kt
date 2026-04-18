@@ -38,6 +38,7 @@ class HomeViewModel : ViewModel() {
     val navigateTo: LiveData<Int?> = _navigateTo
 
     private val weatherRepository = AppContainer.provideWeatherRepository()
+    private val locationRepository = AppContainer.locationRepository
 
     init {
         loadData()
@@ -65,7 +66,12 @@ class HomeViewModel : ViewModel() {
 
             try {
                 // Получаем погоду для Москвы (можно заменить на текущий город пользователя)
-                val result = weatherRepository.getWeatherByCity("Moscow")
+                val selectedCity = locationRepository.getSelectedCity()
+                val result = if (selectedCity?.latitude != null && selectedCity.longitude != null) {
+                    weatherRepository.getWeatherByCoordinates(selectedCity.latitude, selectedCity.longitude)
+                } else {
+                    weatherRepository.getWeatherByCity(selectedCity?.name ?: "Moscow")
+                }
 
                 result.onSuccess { weatherData ->
                     _weatherState.value = WeatherState.Success(weatherData)
@@ -74,6 +80,35 @@ class HomeViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _weatherState.value = WeatherState.Error("Ошибка сети: ${e.localizedMessage}")
+            }
+        }
+    }
+
+    fun loadWeatherByLocation() {
+        viewModelScope.launch {
+            _weatherState.value = WeatherState.Loading
+
+            try {
+                // Сначала получаем текущее местоположение
+                val locationResult = locationRepository.getCurrentLocation()
+
+                locationResult.onSuccess { location ->
+                    // Получаем погоду по координатам
+                    val weatherResult = weatherRepository.getWeatherByCoordinates(
+                        location.latitude,
+                        location.longitude
+                    )
+
+                    weatherResult.onSuccess { weatherData ->
+                        _weatherState.value = WeatherState.Success(weatherData)
+                    }.onFailure { exception ->
+                        _weatherState.value = WeatherState.Error("Не удалось загрузить погоду: ${exception.message}")
+                    }
+                }.onFailure { exception ->
+                    _weatherState.value = WeatherState.Error("Не удалось определить местоположение: ${exception.message}")
+                }
+            } catch (e: Exception) {
+                _weatherState.value = WeatherState.Error("Ошибка: ${e.localizedMessage}")
             }
         }
     }
