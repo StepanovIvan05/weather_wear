@@ -1,1 +1,0 @@
-com.stepanov_ivan.weatherwearadvisor.common

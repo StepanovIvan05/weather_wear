@@ -67,8 +67,10 @@ class HomeViewModel : ViewModel() {
             try {
                 // Получаем погоду для Москвы (можно заменить на текущий город пользователя)
                 val selectedCity = locationRepository.getSelectedCity()
-                val result = if (selectedCity?.latitude != null && selectedCity.longitude != null) {
-                    weatherRepository.getWeatherByCoordinates(selectedCity.latitude, selectedCity.longitude)
+                val lat = selectedCity?.latitude
+                val lon = selectedCity?.longitude
+                val result = if (lat != null && lon != null) {
+                    weatherRepository.getWeatherByCoordinates(lat, lon)
                 } else {
                     weatherRepository.getWeatherByCity(selectedCity?.name ?: "Moscow")
                 }

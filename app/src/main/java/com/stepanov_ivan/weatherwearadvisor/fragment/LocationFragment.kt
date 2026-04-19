@@ -156,8 +156,10 @@ class LocationFragment : Fragment() {
             }
 
             binding.selectedCityText.text = "Selected city: ${city.name}, ${city.region}"
-            if (city.latitude != null && city.longitude != null) {
-                val point = GeoPoint(city.latitude, city.longitude)
+            val lat = city.latitude
+            val lon = city.longitude
+            if (lat != null && lon != null) {
+                val point = GeoPoint(lat, lon)
                 binding.osmMap.controller.animateTo(point)
                 binding.osmMap.controller.setZoom(8.0)
                 placeMarker(point)

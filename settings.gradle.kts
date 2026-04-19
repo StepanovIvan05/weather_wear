@@ -5,6 +5,7 @@ pluginManagement {
                 includeGroupByRegex("com\\.android.*")
                 includeGroupByRegex("com\\.google.*")
                 includeGroupByRegex("androidx.*")
+                includeGroupByRegex("com\\.google\\.devtools.*")
             }
         }
         mavenCentral()
@@ -26,3 +27,4 @@ rootProject.name = "WeatherWearAdvisor"
 include(":app")
 include(":core:common")
 include(":features:weather")
+include(":features:location")
