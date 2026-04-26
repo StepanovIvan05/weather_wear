@@ -123,7 +123,6 @@ class LocationFragment : Fragment() {
             override fun onSingleTapConfirmed(e: MotionEvent, mapView: MapView): Boolean {
                 val projection = mapView.projection
                 val geoPoint = projection.fromPixels(e.x.toInt(), e.y.toInt()) as GeoPoint
-                placeMarker(geoPoint)
                 viewModel.selectLocationOnMap(geoPoint.latitude, geoPoint.longitude)
                 return true
             }

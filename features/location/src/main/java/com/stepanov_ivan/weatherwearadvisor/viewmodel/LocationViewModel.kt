@@ -77,11 +77,16 @@ class LocationViewModel(
             _isLoading.value = true
             repository.getCurrentLocation()
                 .onSuccess { location ->
-                    repository.findNearestCity(location.latitude, location.longitude)
-                        .onSuccess { city -> selectCity(city) }
-                        .onFailure { exception ->
-                            _statusMessage.value = exception.message ?: "Could not find nearest city"
-                        }
+                    val detectedCity = repository.getSelectedCity()
+                    if (
+                        detectedCity != null &&
+                        detectedCity.name == location.cityName &&
+                        detectedCity.countryCode == location.country
+                    ) {
+                        selectCity(detectedCity.copy(isActive = true))
+                    } else {
+                        _statusMessage.value = "Could not find nearest city"
+                    }
                 }
                 .onFailure { exception ->
                     _statusMessage.value = exception.message ?: "Could not get current location"
@@ -94,7 +99,7 @@ class LocationViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             repository.findNearestCity(latitude, longitude)
-                .onSuccess { city -> selectCity(city) }
+                .onSuccess { city -> selectCity(city.copy(isActive = true)) }
                 .onFailure { exception ->
                     _statusMessage.value = exception.message ?: "Could not resolve map point"
                 }

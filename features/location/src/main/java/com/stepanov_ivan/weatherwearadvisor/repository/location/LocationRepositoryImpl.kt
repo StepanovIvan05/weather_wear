@@ -3,6 +3,8 @@ package com.stepanov_ivan.weatherwearadvisor.repository.location
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.location.LocationManager
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -17,6 +19,7 @@ import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -77,6 +80,9 @@ class LocationRepositoryImpl(
 
                 val nearestCityResult = findNearestCity(deviceLocation.latitude, deviceLocation.longitude)
                 val nearestCity = nearestCityResult.getOrNull()
+                if (nearestCity != null) {
+                    saveSelectedCity(nearestCity.copy(isActive = true))
+                }
 
                 Result.success(
                     Location(
@@ -123,6 +129,15 @@ class LocationRepositoryImpl(
         return withContext(Dispatchers.IO) {
             try {
                 val selected = getSelectedCity()
+                val geocoderCity = findCityWithAndroidGeocoder(
+                    latitude = latitude,
+                    longitude = longitude,
+                    selected = selected
+                )
+                if (geocoderCity != null) {
+                    return@withContext Result.success(geocoderCity)
+                }
+
                 val response = geocodingApi.reverseGeocode(
                     latitude = latitude,
                     longitude = longitude,
@@ -130,20 +145,10 @@ class LocationRepositoryImpl(
                     apiKey = BuildConfig.OPENWEATHERMAP_API_KEY
                 )
 
-                val bestMatch = response.minByOrNull { candidate ->
-                    val distanceScore = distanceKm(
-                        latitude,
-                        longitude,
-                        candidate.lat,
-                        candidate.lon
-                    )
-                    val penalty = if (candidate.name.isLikelyAdministrativeUnit()) {
-                        ADMINISTRATIVE_NAME_PENALTY_KM
-                    } else {
-                        0.0
-                    }
-                    distanceScore + penalty
-                }
+                val bestMatch = response
+                    .filterNot { candidate -> candidate.name.isLikelyAdministrativeUnit() }
+                    .minByDistanceFrom(latitude, longitude)
+                    ?: response.minByDistanceFrom(latitude, longitude)
 
                 val city = bestMatch?.toCity(selected)
                 if (city == null) {
@@ -203,6 +208,40 @@ class LocationRepositoryImpl(
         )
     }
 
+    @Suppress("DEPRECATION")
+    private fun findCityWithAndroidGeocoder(
+        latitude: Double,
+        longitude: Double,
+        selected: City?
+    ): City? {
+        if (!Geocoder.isPresent()) return null
+
+        val address = Geocoder(context, Locale.getDefault())
+            .getFromLocation(latitude, longitude, GEOCODER_SEARCH_LIMIT)
+            ?.firstOrNull { candidate -> candidate.getSettlementName() != null }
+            ?: return null
+
+        val name = address.getSettlementName() ?: return null
+        val region = listOfNotNull(address.adminArea, address.countryCode)
+            .distinct()
+            .joinToString(", ")
+
+        return City(
+            name = name,
+            region = region,
+            latitude = latitude,
+            longitude = longitude,
+            countryCode = address.countryCode,
+            isActive = selected?.name == name && selected.countryCode == address.countryCode
+        )
+    }
+
+    private fun Address.getSettlementName(): String? {
+        return listOf(locality, subLocality)
+            .mapNotNull { value -> value?.takeIf { it.isNotBlank() } }
+            .firstOrNull { value -> !value.isLikelyAdministrativeUnit() }
+    }
+
     private fun String.isLikelyAdministrativeUnit(): Boolean {
         val normalized = lowercase()
         return ADMINISTRATIVE_TOKENS.any { token -> normalized.contains(token) }
@@ -224,12 +263,26 @@ class LocationRepositoryImpl(
         return EARTH_RADIUS_KM * c
     }
 
+    private fun List<OpenWeatherGeoCityResponse>.minByDistanceFrom(
+        latitude: Double,
+        longitude: Double
+    ): OpenWeatherGeoCityResponse? {
+        return minByOrNull { candidate ->
+            distanceKm(
+                latitude,
+                longitude,
+                candidate.lat,
+                candidate.lon
+            )
+        }
+    }
+
     companion object {
         private const val GEOCODING_BASE_URL = "https://api.openweathermap.org/"
         private const val SEARCH_LIMIT = 30
         private const val REVERSE_SEARCH_LIMIT = 10
+        private const val GEOCODER_SEARCH_LIMIT = 10
         private const val EARTH_RADIUS_KM = 6371.0
-        private const val ADMINISTRATIVE_NAME_PENALTY_KM = 1_000.0
         private const val PREFS_NAME = "location_preferences"
         private const val KEY_CITY_NAME = "city_name"
         private const val KEY_REGION = "city_region"
@@ -244,6 +297,8 @@ class LocationRepositoryImpl(
             "state",
             "county",
             "municipality",
+            "republic",
+            "krai",
             "okrug",
             "rayon",
             "область",
