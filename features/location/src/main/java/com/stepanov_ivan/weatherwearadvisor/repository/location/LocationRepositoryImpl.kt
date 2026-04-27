@@ -1,5 +1,6 @@
 package com.stepanov_ivan.weatherwearadvisor.repository.location
 
+import android.annotation.SuppressLint
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
@@ -12,13 +13,12 @@ import com.google.android.gms.location.LocationServices
 import com.stepanov_ivan.weatherwearadvisor.location.BuildConfig
 import com.stepanov_ivan.weatherwearadvisor.model.City
 import com.stepanov_ivan.weatherwearadvisor.model.Location
+import com.stepanov_ivan.weatherwearadvisor.network.NetworkClientFactory
 import com.stepanov_ivan.weatherwearadvisor.repository.location.api.OpenWeatherGeoCityResponse
 import com.stepanov_ivan.weatherwearadvisor.repository.location.api.OpenWeatherGeocodingApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import java.util.Locale
 import kotlin.coroutines.resume
 import kotlin.math.atan2
@@ -37,10 +37,7 @@ class LocationRepositoryImpl(
     private val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     private val geocodingApi: OpenWeatherGeocodingApi by lazy {
-        Retrofit.Builder()
-            .baseUrl(GEOCODING_BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
+        NetworkClientFactory.createRetrofit(GEOCODING_BASE_URL)
             .create(OpenWeatherGeocodingApi::class.java)
     }
 
@@ -51,6 +48,7 @@ class LocationRepositoryImpl(
         }
     }
 
+    @SuppressLint("MissingPermission")
     override suspend fun getCurrentLocation(): Result<Location> {
         return withContext(Dispatchers.IO) {
             try {

@@ -1,8 +1,28 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("com.google.devtools.ksp")
     id("com.google.gms.google-services")
+}
+
+val localProperties = Properties().apply {
+    val file = rootProject.file("local.properties")
+    if (file.exists()) {
+        file.inputStream().use(::load)
+    }
+}
+
+fun configValue(name: String, defaultValue: String): String {
+    return providers.gradleProperty(name)
+        .orElse(providers.environmentVariable(name))
+        .orElse(localProperties.getProperty(name) ?: defaultValue)
+        .get()
+}
+
+fun buildConfigString(value: String): String {
+    return "\"${value.replace("\\", "\\\\").replace("\"", "\\\"")}\""
 }
 
 android {
@@ -18,8 +38,16 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         
-        // OpenWeatherMap API Key
-        buildConfigField("String", "OPENWEATHERMAP_API_KEY", "\"a8d462028660397f4abda9931b7b98e1\"")
+        buildConfigField(
+            "String",
+            "OPENWEATHERMAP_API_KEY",
+            buildConfigString(configValue("OPENWEATHERMAP_API_KEY", "YOUR_API_KEY_HERE"))
+        )
+        buildConfigField(
+            "String",
+            "WEATHER_API_BASE_URL",
+            buildConfigString(configValue("WEATHER_API_BASE_URL", "https://api.openweathermap.org/data/2.5/"))
+        )
     }
 
     buildTypes {
@@ -47,6 +75,12 @@ android {
 dependencies {
     // Module dependencies
     implementation(project(":core:common"))
+    implementation(project(":core:model"))
+    implementation(project(":core:database"))
+    implementation(project(":core:network"))
+    implementation(project(":features:auth"))
+    implementation(project(":features:wardrobe"))
+    implementation(project(":features:recommendations"))
     implementation(project(":features:weather"))
     implementation(project(":features:location"))
 
@@ -63,11 +97,6 @@ dependencies {
     // Navigation
     implementation(libs.androidx.navigation.fragment.ktx)
     implementation(libs.androidx.navigation.ui.ktx)
-
-    // Room
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
 
     // Glide
     implementation(libs.glide)

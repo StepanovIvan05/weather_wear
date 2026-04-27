@@ -1,21 +1,7 @@
 package com.stepanov_ivan.weatherwearadvisor.weather.model
 
-/**
- * Модель данных о погоде от OpenWeatherMap API
- */
-data class WeatherData(
-    val city: String,
-    val temperature: Double,
-    val feelsLike: Double,
-    val humidity: Int,
-    val windSpeed: Double,
-    val description: String,
-    val icon: String
-)
+import com.stepanov_ivan.weatherwearadvisor.model.WeatherData
 
-/**
- * Ответ от OpenWeatherMap API
- */
 data class OpenWeatherResponse(
     val main: Main,
     val weather: List<Weather>,

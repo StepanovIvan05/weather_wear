@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
-import com.stepanov_ivan.weatherwearadvisor.weather.model.WeatherData
+import com.stepanov_ivan.weatherwearadvisor.model.WeatherData
 import kotlinx.coroutines.launch
 
 sealed class WeatherState {

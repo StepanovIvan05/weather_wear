@@ -12,8 +12,14 @@
             <option value="$PROJECT_DIR$/app" />
             <option value="$PROJECT_DIR$/core" />
             <option value="$PROJECT_DIR$/core/common" />
+            <option value="$PROJECT_DIR$/core/database" />
+            <option value="$PROJECT_DIR$/core/model" />
+            <option value="$PROJECT_DIR$/core/network" />
             <option value="$PROJECT_DIR$/features" />
+            <option value="$PROJECT_DIR$/features/auth" />
             <option value="$PROJECT_DIR$/features/location" />
+            <option value="$PROJECT_DIR$/features/recommendations" />
+            <option value="$PROJECT_DIR$/features/wardrobe" />
             <option value="$PROJECT_DIR$/features/weather" />
           </set>
         </option>

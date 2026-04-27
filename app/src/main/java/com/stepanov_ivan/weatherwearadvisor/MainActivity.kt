@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.setupWithNavController
 import com.stepanov_ivan.weatherwearadvisor.common.di.CommonModuleProvider
+import com.stepanov_ivan.weatherwearadvisor.data.AppDatabase
 import com.stepanov_ivan.weatherwearadvisor.databinding.ActivityMainBinding
 import com.stepanov_ivan.weatherwearadvisor.di.AppContainer
 import com.stepanov_ivan.weatherwearadvisor.weather.WeatherModuleProvider
@@ -30,7 +31,11 @@ class MainActivity : AppCompatActivity() {
         val apiKey = BuildConfig.OPENWEATHERMAP_API_KEY
         Log.d(TAG, "Initializing Weather with API key: ${apiKey.take(5)}...${apiKey.takeLast(5)} (length=${apiKey.length})")
         
-        WeatherModuleProvider.initialize(apiKey)
+        WeatherModuleProvider.initialize(
+            apiKey = apiKey,
+            weatherCacheDao = AppDatabase.getDatabase(this).weatherCacheDao(),
+            baseUrl = BuildConfig.WEATHER_API_BASE_URL
+        )
         
         // 3️⃣ Инициализировать app контейнер
         AppContainer.init(this)
